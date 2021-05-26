@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Tray of a distillation column.
-Ideal tray assumed.
+Tray can have efficiency different than 1.
 Equimolal overflow assumed.
 Tray operates at specified pressure.
 """
@@ -17,7 +17,7 @@ class Tray(Unit):
     
     n_trays = 0
     
-    def __init__(self, liq_stream_in, liq_stream_out, vap_stream_in, vap_stream_out, press, name=None):
+    def __init__(self, liq_stream_in, liq_stream_out, vap_stream_in, vap_stream_out, press, efficiency=1, name=None):
         self.tray_num = Tray.n_trays
         super().__init__(name, self.tray_num)
         Tray.n_trays += 1
@@ -28,6 +28,7 @@ class Tray(Unit):
         self.press = press
         self.n_vars = 0
         self.n_eqns = 2 * self.liq_stream_in.n_comps + 4
+        self.efficiency = efficiency
 
     def __str__(self):
         s = ''
@@ -77,6 +78,7 @@ class Tray(Unit):
         for i_comp in range(self.liq_stream_in.n_comps):
 #            K_eq = np.power(10, Antoine_A[i_comp] - Antoine_B[i_comp] / (Antoine_C[i_comp] + self.liq_stream_out.xvar[1])) / self.press
             K_eq = np.power(10, phy_props['Antoine_A'][i_comp] - phy_props['Antoine_B'][i_comp] / (phy_props['Antoine_C'][i_comp] + self.liq_stream_out.xvar[1])) / self.press
+            K_eq = self.efficiency * K_eq + (1 - self.efficiency)
             self.eqns[4+self.liq_stream_in.n_comps+i_comp] = self.vap_stream_out.xvar[2+i_comp] - \
                 K_eq * self.liq_stream_out.xvar[2+i_comp]
         return
