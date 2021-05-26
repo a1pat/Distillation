@@ -9,6 +9,7 @@ from scipy.optimize import fsolve
 import pandas as pd
 import matplotlib.pyplot as plt
 #%matplotlib inline
+from sim_utils import map_var_to_unit1, map_eqn_to_unit1, process_eqns
 
 from unit import Unit
 from stream import Stream
@@ -18,37 +19,6 @@ from connector import Connector
 from specify import Specify
 from simplecolumn import SimpleColumn
 
-def map_var_to_unit1(x, unit_dict):
-
-    def map_var_to_unit2(x, unit_dict, idx):
-        for u in unit_dict:
-            n_vars = unit_dict[u].n_vars
-            if n_vars > 0:
-                unit_dict[u].xvar = x[idx:idx+n_vars]
-                idx += n_vars
-            map_var_to_unit2(x, unit_dict[u].unit_dict, idx)
-
-    idx = 0
-    map_var_to_unit2(x, unit_dict, idx)
-    
-def map_eqn_to_unit1(e, unit_dict):
-
-    def map_eqn_to_unit2(e, unit_dict, idx):
-        for u in unit_dict:
-            n_eqns = unit_dict[u].n_eqns
-            if n_eqns > 0:
-                unit_dict[u].eqns = e[idx:idx+n_eqns]
-                idx += n_eqns
-            map_eqn_to_unit2(e, unit_dict[u].unit_dict, idx)
-
-    idx = 0
-    map_eqn_to_unit2(e, unit_dict, idx)
-    
-def process_eqns(xvar):
-    map_var_to_unit1(xvar, unit_dict)
-    for u in unit_dict:
-        unit_dict[u].calculate()
-    return eqns.tolist()
 
 N_COMPS = 5
 
@@ -110,7 +80,9 @@ foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7,
                           vapor_reboil=vapor_reboil, 
                           condensate = condensate,
                           bottoms = bottoms,
-                          press=45, name='foust_8_11')
+                          press=45, 
+                          tray_efficiency={5:0.8},
+                          name='foust_8_11')
 
 unit_dict[foust_8_11.name] = foust_8_11
 
@@ -129,8 +101,8 @@ xvar = np.ones(n_vars, dtype=np.float64) * 100
 map_var_to_unit1(xvar, unit_dict)
 eqns = np.ones(n_vars, dtype=np.float64)
 map_eqn_to_unit1(eqns, unit_dict)
-process_eqns(xvar);
-x_solution = fsolve(process_eqns, xvar)
+#process_eqns(xvar);
+x_solution = fsolve(process_eqns, xvar, args=(unit_dict, eqns))
 print(np.sum(np.square(eqns)))
 map_var_to_unit1(x_solution, unit_dict)
 
@@ -153,4 +125,3 @@ plt.xlabel('fraction')
 plt.ylabel('tray number')
 plt.grid(axis='both')
 plt.legend(['ic4','nc4','ic5','nc5','nc6'])
-
