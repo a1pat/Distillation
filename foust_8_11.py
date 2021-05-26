@@ -80,7 +80,7 @@ foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7,
                           vapor_reboil=vapor_reboil, 
                           condensate = condensate,
                           bottoms = bottoms,
-                          press=45, 
+                          pressure=45, 
                           tray_efficiency={5:0.8},
                           name='foust_8_11')
 
