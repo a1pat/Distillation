@@ -15,7 +15,17 @@ This project serves the author's personal learning purposes. Developing the simu
 
 ## File Descriptions<a name="file_descriptions"></a> ##
 There is only one Jupyter notebook file, currently.
-+ **Distillation.ipynb**. This file contains all the Python code to run the simulation. The code is under development, and currently only includes a working example for a simple distillation column.
++ **Distillation.ipynb**. This file contains all the Python code to run the simulation. The code is under development, and currently only includes a working example for a simple distillation column. This file contains the very first code and is not updated. Classes and functions in this file have been broken out into individual files.
++ **connector.py**. Connector class. Sets attributes of two Stream objects equal to each other.
++ **foust_8_11.py**. Runs Example 8.11 if Foust et al's textbook.
++ **mixer.py**. Mixer class. Mixes multiple input streams and outputs one or more streams with identical attributes (except flow rate).
++ **phy_props.py**. Specify physical properties of each component
++ **sim_utils.py**. Utility functions required for simulation.
++ **simplecolumn.py**. Class for simple distillation column.
++ **specify.py**. Class to specify attribute of a Stream object.
++ **stream.py**. Class to hold attributes of a stream.
++ **tray.py**. Class for tray in a distillation column.
++ **unit.py**. Parent class for all processing unit and stream classes.
 
 ## Instructions for Use<a name="instructions_for_use"></a> ##
 Download the file in the [File Descriptions](#file_descriptions) section. Read the description to understand what the simulator includes and run it.
