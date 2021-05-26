@@ -159,6 +159,7 @@ class SimpleColumn(Unit):
         s = s + 'Vapor reboil stream: {}\n'.format(self.vapor_reboil.name)
         s = s + 'Number of variables: {}\n'.format(self.n_vars)
         s = s + 'Number of equations: {}\n'.format(self.n_eqns)
+        s = s + 'Tray efficiencies: {}\n'.format(self.efficiency)
         if self.eqns is None:
             s = s + 'Equations not set\n'
         else:
