@@ -41,6 +41,7 @@ class Tray(Unit):
         s = s + 'Pressure: {}\n'.format(self.press)
         s = s + 'Number of variables: {}\n'.format(self.n_vars)
         s = s + 'Number of equations: {}\n'.format(self.n_eqns)
+        s = s + 'Efficiency: {}\n'.format(self.efficiency)
         if self.eqns is None:
             s = s + 'Equations not set\n'
         else:
