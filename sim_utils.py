@@ -62,22 +62,25 @@ def map_eqn_to_unit1(e, unit_dict):
     map_eqn_to_unit2(e, unit_dict, idx)
     
     
-def process_eqns(xvar):
+def process_eqns(xvar, unit_dict, eqns):
     """
     Evaluates the equations of each Unit object.
     Parameters
     ----------
     xvar : array
         variable array for which to evaluate the equations.
+    unit_dict : dict
+        dictionary containing all the Unit objects in the model.
+    eqns : array
+        equations for all the Unit objects in the model.
 
     Returns
     -------
     array
-        equations for each Unit object.
+        evaluated equations for all the Unit objects in the model.
 
     """
     map_var_to_unit1(xvar, unit_dict)
     for u in unit_dict:
         unit_dict[u].calculate()
     return eqns.tolist()
-
