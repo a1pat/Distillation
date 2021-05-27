@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Makes a connection between two streams.
-The flow rates of the two streams can be equal, or differ by a specified 
+The flow rates of the two streams can be equal, or differ by a specified
 amount (positive or negative). Can be used to model a leak, but the leak
 is lost - it is not captured by another stream.
 The temperatures of the two streams can be equal, or differ by a specified
@@ -12,10 +12,10 @@ The fraction of each component has to be the same for each stream.
 from unit import Unit
 
 class Connector(Unit):
-    
+
     n_connectors = 0
-    
-    def __init__(self, stream_in, stream_out, flow_diff=0, temp_diff=0, 
+
+    def __init__(self, stream_in, stream_out, flow_diff=0, temp_diff=0,
                  name=None):
         self.connector_num = Connector.n_connectors
         super().__init__(name, self.connector_num)
@@ -39,7 +39,7 @@ class Connector(Unit):
         else:
             s = s + 'Equations: {}\n'.format(self.eqns[:])
         return s
-    
+
     def calculate(self):
         # equate flow: 1 equation
         self.eqns[0] = self.stream_in.xvar[0] + self.flow_diff - self.stream_out.xvar[0]
@@ -48,4 +48,12 @@ class Connector(Unit):
         # equate component fractions: n_comps equations
         for i_comp in range(self.stream_in.n_comps):
             self.eqns[2 + i_comp] = self.stream_in.xvar[2 + i_comp] - self.stream_out.xvar[2 + i_comp]
+        return
+
+    def update_flow_diff(self, flow_diff):
+        self.flow_diff = flow_diff
+        return
+
+    def update_temp_diff(self, temp_diff):
+        self.temp_diff = temp_diff
         return
