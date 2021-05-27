@@ -17,7 +17,7 @@ class Tray(Unit):
     
     n_trays = 0
     
-    def __init__(self, liq_stream_in, liq_stream_out, vap_stream_in, vap_stream_out, press, efficiency=1, name=None):
+    def __init__(self, liq_stream_in, liq_stream_out, vap_stream_in, vap_stream_out, pressure, tray_efficiency=1, name=None):
         self.tray_num = Tray.n_trays
         super().__init__(name, self.tray_num)
         Tray.n_trays += 1
@@ -25,10 +25,10 @@ class Tray(Unit):
         self.liq_stream_out = liq_stream_out
         self.vap_stream_in = vap_stream_in
         self.vap_stream_out = vap_stream_out
-        self.press = press
+        self.pressure = pressure
         self.n_vars = 0
         self.n_eqns = 2 * self.liq_stream_in.n_comps + 4
-        self.efficiency = efficiency
+        self.tray_efficiency = tray_efficiency
 
     def __str__(self):
         s = ''
@@ -38,10 +38,10 @@ class Tray(Unit):
         s = s + 'Liquid stream out: {}\n'.format(self.liq_stream_out.name)
         s = s + 'Vapor stream in: {}\n'.format(self.vap_stream_in.name)
         s = s + 'Vapor stream out: {}\n'.format(self.vap_stream_out.name)
-        s = s + 'Pressure: {}\n'.format(self.press)
+        s = s + 'Pressure: {}\n'.format(self.pressure)
         s = s + 'Number of variables: {}\n'.format(self.n_vars)
         s = s + 'Number of equations: {}\n'.format(self.n_eqns)
-        s = s + 'Efficiency: {}\n'.format(self.efficiency)
+        s = s + 'Tray efficiency: {}\n'.format(self.tray_efficiency)
         if self.eqns is None:
             s = s + 'Equations not set\n'
         else:
@@ -78,8 +78,16 @@ class Tray(Unit):
         # vapor-liquid equilibrium (n_comps equations)
         for i_comp in range(self.liq_stream_in.n_comps):
 #            K_eq = np.power(10, Antoine_A[i_comp] - Antoine_B[i_comp] / (Antoine_C[i_comp] + self.liq_stream_out.xvar[1])) / self.press
-            K_eq = np.power(10, phy_props['Antoine_A'][i_comp] - phy_props['Antoine_B'][i_comp] / (phy_props['Antoine_C'][i_comp] + self.liq_stream_out.xvar[1])) / self.press
-            K_eq = self.efficiency * K_eq + (1 - self.efficiency)
+            K_eq = np.power(10, phy_props['Antoine_A'][i_comp] - phy_props['Antoine_B'][i_comp] / (phy_props['Antoine_C'][i_comp] + self.liq_stream_out.xvar[1])) / self.pressure
+            K_eq = self.tray_efficiency * K_eq + (1 - self.tray_efficiency)
             self.eqns[4+self.liq_stream_in.n_comps+i_comp] = self.vap_stream_out.xvar[2+i_comp] - \
                 K_eq * self.liq_stream_out.xvar[2+i_comp]
+        return
+    
+    def update_pressure(self, pressure):
+        self.pressure = pressure
+        return
+    
+    def update_tray_efficiency(self, tray_efficiency):
+        self.tray_efficiency = tray_efficiency
         return
