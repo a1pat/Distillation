@@ -55,3 +55,7 @@ class Specify(Unit):
         if self.fraction:
             self.eqns[0] = self.value -  self.stream.xvar[2 + self.comp_num]
         return
+    
+    def update(self, value):
+        self.value = value
+        return
