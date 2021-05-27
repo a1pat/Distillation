@@ -19,7 +19,7 @@ class SimpleColumn(Unit):
     n_columns = 0
     
     def __init__(self, n_trays, feed_tray, feed_stream_liq, reflux, vapor_reboil, condensate,
-                 bottoms, press, tray_efficiency=1.0, name=None):
+                 bottoms, pressure, tray_efficiency=1.0, name=None):
         '''
         feed_tray must be an integer between 1 and n_trays-2 (feed cannot be to the top or bottom trays for now)
         the bottom tray is tray number zero
@@ -27,7 +27,7 @@ class SimpleColumn(Unit):
         
         the default efficiency is 1 for all trays.
         if tray_efficiency is a scalar, it is used for all trays.
-        if tray_efficieny is a dict (tray:efficiency), it is used for the specified trays. the remaining are
+        if tray_efficiency is a dict (tray:efficiency), it is used for the specified trays. the remaining are
         assigned an efficiency of 1.
         '''
         self.column_num = SimpleColumn.n_columns
@@ -47,18 +47,10 @@ class SimpleColumn(Unit):
         self.vapor_reboil = vapor_reboil
         self.condensate = condensate
         self.bottoms = bottoms
-        self.press = press
+        self.pressure = pressure
         self.n_vars = 0
         self.n_eqns = 0
         
-        # make list of tray efficiencies
-        if isinstance(tray_efficiency,dict):
-            efficiency = [1.0] * self.n_trays
-            for t, eff in tray_efficiency.items():
-                efficiency[t] = eff
-        else: # assume it is a scalar
-            efficiency = [tray_efficiency] * self.n_trays
-        self.efficiency = efficiency
             
         
         # figure out number of streams to be created as part of this column
@@ -102,33 +94,35 @@ class SimpleColumn(Unit):
                                        liq_stream_out=self.tray_liq_stream[i_tray],
                                        vap_stream_in=self.tray_vap_stream[i_tray-1], 
                                        vap_stream_out=self.tray_vap_stream[i_tray], 
-                                       efficiency=self.efficiency[i_tray],
-                                       press=self.press, 
+                                       tray_efficiency=1, # will be updated later
+                                       pressure=self.pressure, 
                                        name=name))
             elif i_tray == 0:
                 self.trays.append(Tray(liq_stream_in=self.tray_liq_stream[i_tray+1], 
                                        liq_stream_out=self.tray_liq_stream[i_tray],
                                        vap_stream_in=self.vapor_reboil, 
                                        vap_stream_out=self.tray_vap_stream[i_tray], 
-                                       efficiency=self.efficiency[i_tray],
-                                       press=self.press, 
+                                       tray_efficiency=1, # will be updated later
+                                       pressure=self.pressure, 
                                        name=name))
             elif i_tray == self.n_trays-1:
                 self.trays.append(Tray(liq_stream_in=self.reflux, 
                                        liq_stream_out=self.tray_liq_stream[i_tray],
                                        vap_stream_in=self.tray_vap_stream[i_tray-1], 
                                        vap_stream_out=self.tray_vap_stream[i_tray], 
-                                       efficiency=self.efficiency[i_tray],
-                                       press=self.press, 
+                                       tray_efficiency=1, # will be updated later
+                                       pressure=self.pressure, 
                                        name=name))
             else:
                 self.trays.append(Tray(liq_stream_in=self.tray_liq_stream[i_tray+1], 
                                        liq_stream_out=self.tray_liq_stream[i_tray],
                                        vap_stream_in=self.tray_vap_stream[i_tray-1], 
                                        vap_stream_out=self.tray_vap_stream[i_tray], 
-                                       efficiency=self.efficiency[i_tray],
-                                       press=self.press, 
+                                       tray_efficiency=1, # will be updated later
+                                       pressure=self.pressure, 
                                        name=name))
+                
+        self.update_tray_efficiency(tray_efficiency)
                 
         for s in self.tray_liq_stream:
             self.unit_dict[s.name] = s
@@ -153,13 +147,13 @@ class SimpleColumn(Unit):
         s = s + 'SimpleColumn number: {}\n'.format(self.column_num)
         s = s + 'Number of trays: {}\n'.format(self.n_trays)
         s = s + 'Feed tray: {}\n'.format(self.feed_tray)
-        s = s + 'Pressure: {}\n'.format(self.press)
+        s = s + 'Pressure: {}\n'.format(self.pressure)
         s = s + 'Liquid feed stream: {}\n'.format(self.feed_stream_liq.name)
         s = s + 'Reflux stream: {}\n'.format(self.reflux.name)
         s = s + 'Vapor reboil stream: {}\n'.format(self.vapor_reboil.name)
         s = s + 'Number of variables: {}\n'.format(self.n_vars)
         s = s + 'Number of equations: {}\n'.format(self.n_eqns)
-        s = s + 'Tray efficiencies: {}\n'.format(self.efficiency)
+        s = s + 'Tray efficiencies: {}\n'.format(self.tray_efficiency)
         if self.eqns is None:
             s = s + 'Equations not set\n'
         else:
@@ -194,3 +188,23 @@ class SimpleColumn(Unit):
             p[i_tray, 4:4+n_comps] = self.trays[i_tray].liq_stream_out.xvar[2:]
             p[i_tray, 4+n_comps:4+2*n_comps] = self.trays[i_tray].vap_stream_out.xvar[2:]
         return pd.DataFrame(data=p, columns=cols)
+    
+    def update_press(self, pressure):
+        self.pressure = pressure
+        for tray in self.trays:
+            tray.update_pressure(self.pressure)
+        return
+    
+    def update_tray_efficiency(self, tray_efficiency):
+        # make list of tray efficiencies
+        if isinstance(tray_efficiency, dict):
+            self.tray_efficiency = [1.0] * self.n_trays
+            for t, eff in tray_efficiency.items():
+                self.tray_efficiency[t] = eff
+        else: # assume it is a scalar
+            self.tray_efficiency = [tray_efficiency] * self.n_trays
+            
+        for i, tray in enumerate(self.trays):
+            tray.update_tray_efficiency(self.tray_efficiency[i])
+        return
+        
