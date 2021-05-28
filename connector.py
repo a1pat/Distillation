@@ -10,6 +10,7 @@ The fraction of each component has to be the same for each stream.
 """
 
 from unit import Unit
+import numpy as np
 
 class Connector(Unit):
 
@@ -26,6 +27,7 @@ class Connector(Unit):
         self.n_eqns = self.stream_in.n_comps + 2
         self.flow_diff = flow_diff
         self.temp_diff = temp_diff
+        self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):
         s = ''
