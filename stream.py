@@ -22,6 +22,7 @@ class Stream(Unit):
         self.n_vars = 2 + n_comps
         self.n_eqns = 0
         self.xvar = np.zeros(self.n_vars, dtype=np.float64)
+        self.eqns = None
         
     def __str__(self):
         s = 'Stream name: {}\n'.format(self.name)
