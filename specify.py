@@ -7,6 +7,7 @@ Specify a value for one of the following attributes of a Stream object:
 """
 
 from unit import Unit
+import numpy as np
 
 class Specify(Unit):
     
@@ -27,6 +28,8 @@ class Specify(Unit):
         self.value = value
         self.n_vars = 0
         self.n_eqns = 1
+        self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
+        
 
     def __str__(self):
         s = ''
