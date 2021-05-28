@@ -50,7 +50,7 @@ class SimpleColumn(Unit):
         self.pressure = pressure
         self.n_vars = 0
         self.n_eqns = 0
-        
+        self.eqns = None
             
         
         # figure out number of streams to be created as part of this column
