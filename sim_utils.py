@@ -27,7 +27,8 @@ def map_var_to_unit1(x, unit_dict):
             if n_vars > 0:
                 unit_dict[u].xvar = x[idx:idx+n_vars]
                 idx += n_vars
-            map_var_to_unit2(x, unit_dict[u].unit_dict, idx)
+            idx = map_var_to_unit2(x, unit_dict[u].unit_dict, idx)
+        return idx
 
     idx = 0
     map_var_to_unit2(x, unit_dict, idx)
@@ -56,7 +57,8 @@ def map_eqn_to_unit1(e, unit_dict):
             if n_eqns > 0:
                 unit_dict[u].eqns = e[idx:idx+n_eqns]
                 idx += n_eqns
-            map_eqn_to_unit2(e, unit_dict[u].unit_dict, idx)
+            idx = map_eqn_to_unit2(e, unit_dict[u].unit_dict, idx)
+        return idx
 
     idx = 0
     map_eqn_to_unit2(e, unit_dict, idx)
@@ -84,3 +86,5 @@ def process_eqns(xvar, unit_dict, eqns):
     for u in unit_dict:
         unit_dict[u].calculate()
     return eqns.tolist()
+
+
