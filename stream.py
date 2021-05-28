@@ -4,6 +4,7 @@ Stream object contains flow rate, temperature and fraction of each component.
 """
 
 from unit import Unit
+import numpy as np
 
 class Stream(Unit):
     
@@ -20,6 +21,7 @@ class Stream(Unit):
         self.n_comps = n_comps
         self.n_vars = 2 + n_comps
         self.n_eqns = 0
+        self.xvar = np.zeros(self.n_vars, dtype=np.float64)
         
     def __str__(self):
         s = 'Stream name: {}\n'.format(self.name)
