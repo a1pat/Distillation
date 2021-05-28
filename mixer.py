@@ -21,6 +21,7 @@ class Mixer(Unit):
         self.n_out = len(self.streams_out)
         self.n_vars = 0
         self.n_eqns = (self.streams_in[0].n_comps + 1) * self.n_out + 1
+        self.xvar = None
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):
