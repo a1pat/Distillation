@@ -27,6 +27,7 @@ class Connector(Unit):
         self.n_eqns = self.stream_in.n_comps + 2
         self.flow_diff = flow_diff
         self.temp_diff = temp_diff
+        self.xvar = None
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):

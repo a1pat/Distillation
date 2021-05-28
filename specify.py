@@ -28,6 +28,7 @@ class Specify(Unit):
         self.value = value
         self.n_vars = 0
         self.n_eqns = 1
+        self.xvar = None
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
         
 
