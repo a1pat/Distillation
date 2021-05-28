@@ -5,7 +5,7 @@ textbook.
 """
 
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, newton_krylov
 import pandas as pd
 import matplotlib.pyplot as plt
 #%matplotlib inline
@@ -50,6 +50,7 @@ feed_ic5_spec = Specify(fraction=True, stream=feed, comp_num=2, value=0.2)
 feed_nc5_spec = Specify(fraction=True, stream=feed, comp_num=3, value=0.3)
 feed_nc6_spec = Specify(fraction=True, stream=feed, comp_num=4, value=0.1)
 reflux_flow_spec = Specify(flow=True, stream=reflux, value=120)
+vapor_reboil_flow_spec = Specify(flow=True, stream=vapor_reboil, value=160)
 top_product_flow_spec = Specify(flow=True, stream=top_product, value=40)
 foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7, 
                           feed_stream_liq=feed, 
@@ -60,9 +61,9 @@ foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7,
                           pressure=45, 
                           tray_efficiency=1,
                           name='foust_8_11')
-tray_temp_spec = Specify(temperature=True, stream=foust_8_11.trays[10].liq_stream_out, value=101)
+tray_temp_spec = Specify(temperature=True, stream=foust_8_11.trays[3].liq_stream_out, value=155)
 
-# add the objects used in the model to the dict
+# add only the objects used in the model to the dict
 
 unit_dict['condensate'] = condensate
 unit_dict['reflux'] = reflux
@@ -84,11 +85,17 @@ unit_dict['column'] = foust_8_11
 
 unit_dict['reflux_flow_spec'] = reflux_flow_spec
 unit_dict['top_product_flow_spec'] = top_product_flow_spec
+#unit_dict['vapor_reboil_flow_spec'] = vapor_reboil_flow_spec
 #unit_dict['tray_temp_spec'] = tray_temp_spec
 
 
 
-
+print(reflux)
+print(reboiler)
+print(foust_8_11.unit_dict['foust_8_11CondensateConnector'])
+print(foust_8_11)
+print(feed_flow_spec)
+print(foust_8_11.unit_dict['foust_8_11Tray0'])
 
 
 n_eqns = 0
@@ -103,7 +110,7 @@ for u in unit_dict:
 assert n_eqns == n_vars, '{} equations and {} unknown variables'.format(n_eqns, n_vars)
 
 # initialize solver varaibles
-xvar = np.ones(n_vars, dtype=np.float64) * 100
+xvar = np.ones(n_vars, dtype=np.float64) * 200
 # map solver variables to model variables
 map_var_to_unit1(xvar, unit_dict)
 # initialize solver residuals
@@ -112,7 +119,9 @@ eqns = np.ones(n_vars, dtype=np.float64)
 map_eqn_to_unit1(eqns, unit_dict)
 
 # solve model equations
-x_solution = fsolve(process_eqns, xvar, args=(unit_dict, eqns))
+x_solution = fsolve(process_eqns, xvar, args=(unit_dict, eqns), maxfev=50000)
+
+
 # map solver solution to model variables
 map_var_to_unit1(x_solution, unit_dict)
 # map solver residuals to model residuals

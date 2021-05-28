@@ -25,11 +25,8 @@ class Mixer(Unit):
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):
-        s = ''
-        s = s + 'Mixer name: {}\n'.format(self.name)
+        s = 'Mixer name: {}\n'.format(self.name)
         s = s + 'Mixer number: {}\n'.format(self.mixer_num)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
         s_in = list()
         for stream in self.streams_in:
             s_in.append(stream.name)
@@ -38,11 +35,7 @@ class Mixer(Unit):
         for stream in self.streams_out:
             s_out.append(stream.name)
         s = s + 'Streams out: {}\n'.format(', '.join(s_out))
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
-        if self.eqns is None:
-            s = s + 'Equations not set\n'
-        else:
-            s = s + 'Equations: {}\n'.format(self.eqns[:])
+        s = s + super().__str__()
         return s
     
     def calculate(self):

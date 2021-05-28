@@ -33,22 +33,15 @@ class Specify(Unit):
         
 
     def __str__(self):
-        s = ''
-        s = s + 'Specification name: {}\n'.format(self.name)
+        s = 'Specification name: {}\n'.format(self.name)
         s = s + 'Stream : {}\n'.format(self.stream.name)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
         if self.flow:
             s = s + 'Flow: {}\n'.format(self.value)
         elif self.temperature:
             s = s + 'Temperature: {}\n'.format(self.value)
         elif self.fraction:
             s = s + 'Fraction: component {}, value: {}\n'.format(self.comp_num, self.value)            
-            
-        if self.eqns is None:
-            s = s + 'Equations not set\n'
-        else:
-            s = s + 'Equations: {}\n'.format(self.eqns[:])
+        s = s + super().__str__()
         return s
     
     def calculate(self):
