@@ -50,6 +50,7 @@ class SimpleColumn(Unit):
         self.pressure = pressure
         self.n_vars = 0
         self.n_eqns = 0
+        self.xvar = None
         self.eqns = None
             
         
