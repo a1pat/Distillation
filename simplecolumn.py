@@ -143,8 +143,7 @@ class SimpleColumn(Unit):
         self.unit_dict[name] = self.bottoms_connector
             
     def __str__(self):
-        s = ''
-        s = s + 'SimpleColumn name: {}\n'.format(self.name)
+        s = 'SimpleColumn name: {}\n'.format(self.name)
         s = s + 'SimpleColumn number: {}\n'.format(self.column_num)
         s = s + 'Number of trays: {}\n'.format(self.n_trays)
         s = s + 'Feed tray: {}\n'.format(self.feed_tray)
@@ -152,13 +151,8 @@ class SimpleColumn(Unit):
         s = s + 'Liquid feed stream: {}\n'.format(self.feed_stream_liq.name)
         s = s + 'Reflux stream: {}\n'.format(self.reflux.name)
         s = s + 'Vapor reboil stream: {}\n'.format(self.vapor_reboil.name)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
         s = s + 'Tray efficiencies: {}\n'.format(self.tray_efficiency)
-        if self.eqns is None:
-            s = s + 'Equations not set\n'
-        else:
-            s = s + 'Equations: {}\n'.format(self.eqns[:])
+        s = s + super().__str__()
         return s
         
     def calculate(self):

@@ -31,16 +31,10 @@ class Connector(Unit):
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):
-        s = ''
-        s = s + 'Connector number: {}\n'.format(self.connector_num)
+        s = 'Connector number: {}\n'.format(self.connector_num)
         s = s + 'Stream in: {}\n'.format(self.stream_in.name)
         s = s + 'Stream out: {}\n'.format(self.stream_out.name)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
-        if self.eqns is None:
-            s = s + 'Equations not set\n'
-        else:
-            s = s + 'Equations: {}\n'.format(self.eqns[:])
+        s = s + super().__str__()
         return s
 
     def calculate(self):

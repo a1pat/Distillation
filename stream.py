@@ -27,14 +27,7 @@ class Stream(Unit):
     def __str__(self):
         s = 'Stream name: {}\n'.format(self.name)
         s = s + 'Stream number: {}\n'.format(self.stream_num)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
-        if self.xvar is None:
-            s = s + 'Variables not set\n'
-        else:
-            s = s + 'Flow rate: {}\n'.format(self.xvar[0])
-            s = s + 'Temperature: {}\n'.format(self.xvar[1])
-            s = s + 'Fractions: {}\n'.format(self.xvar[2:])
+        s = s + super().__str__()
         return s
     
     def calculate(self):

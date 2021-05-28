@@ -34,21 +34,15 @@ class Tray(Unit):
         
 
     def __str__(self):
-        s = ''
-        s = s + 'Tray name: {}\n'.format(self.name)
+        s = 'Tray name: {}\n'.format(self.name)
         s = s + 'Tray number: {}\n'.format(self.tray_num)
         s = s + 'Liquid stream in: {}\n'.format(self.liq_stream_in.name)
         s = s + 'Liquid stream out: {}\n'.format(self.liq_stream_out.name)
         s = s + 'Vapor stream in: {}\n'.format(self.vap_stream_in.name)
         s = s + 'Vapor stream out: {}\n'.format(self.vap_stream_out.name)
         s = s + 'Pressure: {}\n'.format(self.pressure)
-        s = s + 'Number of variables: {}\n'.format(self.n_vars)
-        s = s + 'Number of equations: {}\n'.format(self.n_eqns)
         s = s + 'Tray efficiency: {}\n'.format(self.tray_efficiency)
-        if self.eqns is None:
-            s = s + 'Equations not set\n'
-        else:
-            s = s + 'Equations: {}\n'.format(self.eqns[:])
+        s = s + super().__str__()
         return s
     
     def calculate(self):
