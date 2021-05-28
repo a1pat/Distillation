@@ -29,6 +29,7 @@ class Tray(Unit):
         self.n_vars = 0
         self.n_eqns = 2 * self.liq_stream_in.n_comps + 4
         self.tray_efficiency = tray_efficiency
+        self.xvar = None
         self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
         
 
