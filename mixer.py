@@ -5,6 +5,7 @@ the Mixer object. A specified list of streams leave the Mixer object.
 """
 
 from unit import Unit
+import numpy as np
 
 class Mixer(Unit):
     
@@ -20,6 +21,7 @@ class Mixer(Unit):
         self.n_out = len(self.streams_out)
         self.n_vars = 0
         self.n_eqns = (self.streams_in[0].n_comps + 1) * self.n_out + 1
+        self.eqns = np.zeros(self.n_eqns, dtype=np.float64)
 
     def __str__(self):
         s = ''
@@ -51,6 +53,7 @@ class Mixer(Unit):
         for s in self.streams_out:
             total_out += s.xvar[0]
         self.eqns[0] = total_in - total_out
+        
         # heat balance (simple: temp out is weighted average of temp in. n_out equations)
         t_avg_in = 0
         for s in self.streams_in:
