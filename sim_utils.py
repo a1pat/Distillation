@@ -121,3 +121,26 @@ def get_info(unit_dict):
 
     info = get_info2(unit_dict, '')        
     return info
+
+
+def get_num_vars(unit_dict):
+    """
+    calculate the total number of variables for all the units in unit_dict.
+
+    Parameters
+    ----------
+    unit_dict : dict
+        dictionary containing all the Unit objects in the simulation.
+
+    Returns
+    -------
+    nvars : integer
+        total number of variables.
+
+    """
+    nvars = 0
+    for u in unit_dict:
+        nvars += unit_dict[u].num_vars()
+    return nvars
+
+
