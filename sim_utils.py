@@ -144,3 +144,24 @@ def get_num_vars(unit_dict):
     return nvars
 
 
+def get_num_eqns(unit_dict):
+    """
+    calculate the total number of equations for all the units in unit_dict.
+
+    Parameters
+    ----------
+    unit_dict : dict
+        dictionary containing all the Unit objects in the simulation.
+
+    Returns
+    -------
+    neqns : integer
+        total number of equations.
+
+    """
+    neqns = 0
+    for u in unit_dict:
+        neqns += unit_dict[u].num_eqns()
+    return neqns
+
+
