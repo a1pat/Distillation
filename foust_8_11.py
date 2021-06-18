@@ -5,7 +5,7 @@ textbook.
 """
 
 import numpy as np
-import scipy
+from scipy.optimize import fsolve, root, leastsq
 import pandas as pd
 import matplotlib.pyplot as plt
 #%matplotlib inline
@@ -20,8 +20,11 @@ from connector import Connector
 from specify import Specify
 from simplecolumn import SimpleColumn
 
+import cProfile, pstats, io
+from pstats import SortKey
 
     
+pr = cProfile.Profile()
 
 
 N_COMPS = 5
@@ -62,8 +65,8 @@ foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7,
                           pressure=45, 
                           tray_efficiency=1,
                           name='foust_8_11')
-tray_temp_spec_bot = Specify(temperature=True, stream=foust_8_11.trays[3].liq_stream_out, value=155)
-tray_temp_spec_top = Specify(temperature=True, stream=foust_8_11.trays[10].liq_stream_out, value=100)
+tray_temp_spec_bot = Specify(temperature=True, stream=foust_8_11.trays[3].liq_stream_out, value=157)
+tray_temp_spec_top = Specify(temperature=True, stream=foust_8_11.trays[10].liq_stream_out, value=98)
 
 # add only the objects used in the model to the dict
 
@@ -125,20 +128,34 @@ eqns = np.ones(n_vars, dtype=np.float64)
 # map solver residuals to model residuals
 map_eqn_to_unit1(eqns, unit_dict)
 
+
+
+pr.enable()
+
 # solve model equations
 
-#x_solution = scipy.optimize.fsolve(process_eqns, xvar, args=(unit_dict, eqns))
+#x_solution = fsolve(process_eqns, xvar, args=(unit_dict, eqns))
 #print(type(x_solution))
 
-#x_solution, ier = scipy.optimize.leastsq(process_eqns, xvar, args=(unit_dict, eqns))
+#x_solution, ier = leastsq(process_eqns, xvar, args=(unit_dict, eqns))
 #print(type(x_solution))
 #print('exited leastsq with ier = {}'.format(ier))
 
-x_solution = scipy.optimize.root(process_eqns, xvar, args=(unit_dict, eqns), method='lm')
+x_solution = root(process_eqns, xvar, args=(unit_dict, eqns), method='lm')
 print(type(x_solution))
 print(type(x_solution['x']))
 print('success: {}'.format(x_solution['success']))
 x_solution = x_solution['x']
+
+
+pr.disable()
+s = io.StringIO()
+sortby = SortKey.CUMULATIVE
+ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+ps.print_stats()
+print(s.getvalue())
+
+
 
 #print(x_solution)
 
