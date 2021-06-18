@@ -59,26 +59,39 @@ class Tray(Unit):
         # heat balance (simple: liquid and vapor leaving tray have the same temperatures. 1 equation)
         self.eqns[2] = self.vap_stream_out.xvar[1] - self.liq_stream_out.xvar[1]
         # fractions sum to one (2 equations)
-        sum_x = -1
-        sum_y = -1
-        for i_comp in range(self.liq_stream_in.n_comps):
-            sum_x += self.liq_stream_out.xvar[2+i_comp]
-            sum_y += self.vap_stream_out.xvar[2+i_comp]
-        self.eqns[3] = sum_x
-        self.eqns[4] = sum_y
+#        sum_x = -1
+#        sum_y = -1
+#        for i_comp in range(self.liq_stream_in.n_comps):
+#            sum_x += self.liq_stream_out.xvar[2+i_comp]
+#            sum_y += self.vap_stream_out.xvar[2+i_comp]
+#        self.eqns[3] = sum_x
+#        self.eqns[4] = sum_y
+        # vectorized version of above
+        self.eqns[3] = sum(self.liq_stream_out.xvar[2:]) - 1
+        self.eqns[4] = sum(self.vap_stream_out.xvar[2:]) - 1
         # component balances (n_comps equations)
-        for i_comp in range(self.liq_stream_in.n_comps-1):
-            self.eqns[5+i_comp] = self.liq_stream_in.xvar[0] * self.liq_stream_in.xvar[2+i_comp] + \
-                self.vap_stream_in.xvar[0] * self.vap_stream_in.xvar[2+i_comp] - \
-                self.liq_stream_out.xvar[0] * self.liq_stream_out.xvar[2+i_comp] - \
-                self.vap_stream_out.xvar[0] * self.vap_stream_out.xvar[2+i_comp]
+        n_comps = self.liq_stream_in.n_comps
+#        for i_comp in range(self.liq_stream_in.n_comps-1):
+#            self.eqns[5+i_comp] = self.liq_stream_in.xvar[0] * self.liq_stream_in.xvar[2+i_comp] + \
+#                self.vap_stream_in.xvar[0] * self.vap_stream_in.xvar[2+i_comp] - \
+#                self.liq_stream_out.xvar[0] * self.liq_stream_out.xvar[2+i_comp] - \
+#                self.vap_stream_out.xvar[0] * self.vap_stream_out.xvar[2+i_comp]
+        # vectorized version of above
+        self.eqns[5:5+n_comps-1] = self.liq_stream_in.xvar[0] * self.liq_stream_in.xvar[2:2+n_comps-1] + \
+            self.vap_stream_in.xvar[0] * self.vap_stream_in.xvar[2:2+n_comps-1] - \
+            self.liq_stream_out.xvar[0] * self.liq_stream_out.xvar[2:2+n_comps-1] - \
+            self.vap_stream_out.xvar[0] * self.vap_stream_out.xvar[2:2+n_comps-1]
         # vapor-liquid equilibrium (n_comps equations)
-        for i_comp in range(self.liq_stream_in.n_comps):
-#            K_eq = np.power(10, Antoine_A[i_comp] - Antoine_B[i_comp] / (Antoine_C[i_comp] + self.liq_stream_out.xvar[1])) / self.press
-            K_eq = np.power(10, phy_props['Antoine_A'][i_comp] - phy_props['Antoine_B'][i_comp] / (phy_props['Antoine_C'][i_comp] + self.liq_stream_out.xvar[1])) / self.pressure
-            K_eq = self.tray_efficiency * K_eq + (1 - self.tray_efficiency)
-            self.eqns[4+self.liq_stream_in.n_comps+i_comp] = self.vap_stream_out.xvar[2+i_comp] - \
-                K_eq * self.liq_stream_out.xvar[2+i_comp]
+#        for i_comp in range(self.liq_stream_in.n_comps):
+#            K_eq = np.power(10, phy_props['Antoine_A'][i_comp] - phy_props['Antoine_B'][i_comp] / (phy_props['Antoine_C'][i_comp] + self.liq_stream_out.xvar[1])) / self.pressure
+#            K_eq = self.tray_efficiency * K_eq + (1 - self.tray_efficiency)
+#            self.eqns[4+self.liq_stream_in.n_comps+i_comp] = self.vap_stream_out.xvar[2+i_comp] - \
+#                K_eq * self.liq_stream_out.xvar[2+i_comp]
+        # vectorized version of above
+            # vectorizing the equilibrium calculation resulted in a significant speed improvement
+        K_eq = np.power(10, phy_props['Antoine_A'] - phy_props['Antoine_B'] / (phy_props['Antoine_C'] + self.liq_stream_out.xvar[1])) / self.pressure
+        K_eq = self.tray_efficiency * K_eq + (1 - self.tray_efficiency)
+        self.eqns[4+n_comps:4+2*n_comps] = self.vap_stream_out.xvar[2:2+n_comps] - K_eq * self.liq_stream_out.xvar[2:2+n_comps]
         return
     
     def update_pressure(self, pressure):
