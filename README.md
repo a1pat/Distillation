@@ -36,6 +36,9 @@ The following packages are used. The user must download and install these packag
 2. SciPy (https://www.scipy.org)
 3. matplotlib (https://www.matplotlib.org)
 4. pandas (https://pandas.pydata.org/pandas-docs/stable/)
+5. cProfile (https://docs.python.org/3/library/profile.html)
+6. pstats (https://docs.python.org/3/library/profile.html)
+7. io (https://docs.python.org/3/library/profile.html)
 
 ## Author<a name="author"></a> ##
 Ashutosh A. Patwardhan ([GitHub](https://github.com/a1pat), [LinkedIn](https://www.linkedin.com/in/ashutosh-patwardhan/))
