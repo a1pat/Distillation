@@ -22,6 +22,10 @@ class Stream(Unit):
         self.n_vars = 2 + n_comps
         self.n_eqns = 0
         self.xvar = np.zeros(self.n_vars, dtype=np.float64)
+        self.xvar[0] = 100
+        self.xvar[1] = 100
+        for i in range(self.n_comps):
+            self.xvar[2+i] = 1 / self.n_comps
         self.eqns = None
         
     def __str__(self):
