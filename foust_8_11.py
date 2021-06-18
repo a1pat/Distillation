@@ -5,11 +5,12 @@ textbook.
 """
 
 import numpy as np
-from scipy.optimize import fsolve, newton_krylov
+import scipy
 import pandas as pd
 import matplotlib.pyplot as plt
 #%matplotlib inline
-from sim_utils import map_var_to_unit1, map_eqn_to_unit1, process_eqns, get_info
+#from sim_utils import map_var_to_unit1, map_eqn_to_unit1, process_eqns, get_info
+from sim_utils import *
 
 from unit import Unit
 from stream import Stream
@@ -61,7 +62,8 @@ foust_8_11 = SimpleColumn(n_trays=15, feed_tray=7,
                           pressure=45, 
                           tray_efficiency=1,
                           name='foust_8_11')
-tray_temp_spec = Specify(temperature=True, stream=foust_8_11.trays[3].liq_stream_out, value=155)
+tray_temp_spec_bot = Specify(temperature=True, stream=foust_8_11.trays[3].liq_stream_out, value=155)
+tray_temp_spec_top = Specify(temperature=True, stream=foust_8_11.trays[10].liq_stream_out, value=100)
 
 # add only the objects used in the model to the dict
 
@@ -83,19 +85,20 @@ unit_dict['feed_nc5_spec'] = feed_nc5_spec
 unit_dict['feed_nc6_spec'] = feed_nc6_spec
 unit_dict['column'] = foust_8_11
 
-unit_dict['reflux_flow_spec'] = reflux_flow_spec
-unit_dict['top_product_flow_spec'] = top_product_flow_spec
+#unit_dict['reflux_flow_spec'] = reflux_flow_spec
+#unit_dict['top_product_flow_spec'] = top_product_flow_spec
 #unit_dict['vapor_reboil_flow_spec'] = vapor_reboil_flow_spec
-#unit_dict['tray_temp_spec'] = tray_temp_spec
+unit_dict['tray_temp_spec_bot'] = tray_temp_spec_bot
+unit_dict['tray_temp_spec_top'] = tray_temp_spec_top
 
 
 
-print(reflux)
-print(reboiler)
-print(foust_8_11.unit_dict['foust_8_11CondensateConnector'])
-print(foust_8_11)
-print(feed_flow_spec)
-print(foust_8_11.unit_dict['foust_8_11Tray0'])
+#print(reflux)
+#print(reboiler)
+#print(foust_8_11.unit_dict['foust_8_11CondensateConnector'])
+#print(foust_8_11)
+#print(feed_flow_spec)
+#print(foust_8_11.unit_dict['foust_8_11Tray0'])
 
 
 n_eqns = 0
@@ -110,7 +113,11 @@ for u in unit_dict:
 assert n_eqns == n_vars, '{} equations and {} unknown variables'.format(n_eqns, n_vars)
 
 # initialize solver varaibles
-xvar = np.ones(n_vars, dtype=np.float64) * 200
+#xvar = np.ones(n_vars, dtype=np.float64) * 100
+xvar = get_unit_vars(unit_dict)
+#print('initial guess')
+#print(xvar)
+
 # map solver variables to model variables
 map_var_to_unit1(xvar, unit_dict)
 # initialize solver residuals
@@ -119,22 +126,42 @@ eqns = np.ones(n_vars, dtype=np.float64)
 map_eqn_to_unit1(eqns, unit_dict)
 
 # solve model equations
-x_solution = fsolve(process_eqns, xvar, args=(unit_dict, eqns), maxfev=50000)
 
+#x_solution = scipy.optimize.fsolve(process_eqns, xvar, args=(unit_dict, eqns))
+#print(type(x_solution))
+
+#x_solution, ier = scipy.optimize.leastsq(process_eqns, xvar, args=(unit_dict, eqns))
+#print(type(x_solution))
+#print('exited leastsq with ier = {}'.format(ier))
+
+x_solution = scipy.optimize.root(process_eqns, xvar, args=(unit_dict, eqns), method='lm')
+print(type(x_solution))
+print(type(x_solution['x']))
+print('success: {}'.format(x_solution['success']))
+x_solution = x_solution['x']
+
+#print(x_solution)
 
 # map solver solution to model variables
 map_var_to_unit1(x_solution, unit_dict)
 # map solver residuals to model residuals
 map_eqn_to_unit1(eqns, unit_dict)
 # print residual SSE
-print(np.sum(np.square(eqns)))
+print('sum of squares of residuals: {}'.format(np.sum(np.square(eqns))))
 
 # get column profile
 foust_profile = foust_8_11.profile()
 # print temperature, liquid flow and vapor flow column profiles
 print(foust_profile[['T', 'L', 'V']])
 # print all column profiles
-#print(foust_profile)
+print(foust_profile)
+#print(top_product_flow_spec)
+
+#with open('open_loop.txt','a') as f:
+#    f.write('\n\n\n')
+#    f.write(str(x_solution))
+#    f.write(get_info(unit_dict))
+#    f.close()
 
 # uncomment the following if you want plots of the temperature and liquid fraction profiles
 #plt.figure()
